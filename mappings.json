@@ -1,0 +1,90 @@
+{
+    "axes": {
+        "Left joystick horizontal": {
+            "axis_id": 0,
+            "value": ""
+        },
+        "Left joystick vertical": {
+            "axis_id": 1,
+            "value": ""
+        },
+        "Right joystick horizontal": {
+            "axis_id": 2,
+            "value": ""
+        },
+        "Right joystick vertical": {
+            "axis_id": 3,
+            "value": ""
+        },
+        "Left trigger": {
+            "axis_id": 4,
+            "value": "Button.left"
+        },
+        "Right trigger": {
+            "axis_id": 5,
+            "value": "Button.right"
+        }
+    },
+    "buttons": {
+        "X": {
+            "axis_id": 0,
+            "value": "Key.alt"
+        },
+        "Circle": {
+            "axis_id": 1,
+            "value": "Key.cmd"
+        },
+        "Square": {
+            "axis_id": 2,
+            "value": "Key.ctrl"
+        },
+        "Triangle": {
+            "axis_id": 3,
+            "value": "Key.shift"
+        },
+        "Capture": {
+            "axis_id": 4,
+            "value": ""
+        },
+        "Menu": {
+            "axis_id": 5,
+            "value": "PauseInputs"
+        },
+        "Options": {
+            "axis_id": 6,
+            "value": ""
+        },
+        "Left joystick button": {
+            "axis_id": 7,
+            "value": ""
+        },
+        "Right joystick button": {
+            "axis_id": 8,
+            "value": ""
+        },
+        "Left bumper": {
+            "axis_id": 9,
+            "value": "SwapProfile"
+        },
+        "Right bumper": {
+            "axis_id": 10,
+            "value": ""
+        },
+        "D-pad up": {
+            "axis_id": 11,
+            "value": ""
+        },
+        "D-pad down": {
+            "axis_id": 12,
+            "value": ""
+        },
+        "D-pad left": {
+            "axis_id": 13,
+            "value": ""
+        },
+        "D-pad right": {
+            "axis_id": 14,
+            "value": ""
+        }
+    }
+}

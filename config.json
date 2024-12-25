@@ -1,0 +1,106 @@
+{
+    "current_profile": "Default",
+    "calibration": {
+        "deadzone": {
+            "0": 0.3,
+            "1": 0.3,
+            "2": 0.3,
+            "3": 0.3,
+            "4": 0.05,
+            "5": 0.05
+        },
+        "sensitivity": 1.0,
+        "invert": false,
+        "mouse_speed": 1.0,
+        "axes": {
+            "0": {
+                "min": -0.992156982421875,
+                "max": 0.999969482421875
+            },
+            "1": {
+                "min": -0.99228098269979,
+                "max": 0.9297543250524951
+            },
+            "2": {
+                "min": -0.92156982421875,
+                "max": 0.92938232421875
+            },
+            "3": {
+                "min": -0.992156982421875,
+                "max": 0.999969482421875
+            },
+            "4": {
+                "min": -3.0,
+                "max": 0.99993896484375
+            },
+            "5": {
+                "min": -3.0,
+                "max": 0.99993896484375
+            }
+        }
+    },
+    "profiles": [
+        {
+            "name": "Default",
+            "device": "PS4 Controller",
+            "mappings": {
+                "buttons": {
+                    "0": "Key.alt",
+                    "1": "Key.cmd",
+                    "2": "Key.ctrl",
+                    "3": "Key.shift",
+                    "4": "Button.left",
+                    "5": "PauseInputs",
+                    "6": "Button.middle",
+                    "7": "",
+                    "8": "",
+                    "9": "SwapProfile",
+                    "10": "",
+                    "11": "",
+                    "12": "",
+                    "13": "",
+                    "14": ""
+                },
+                "axes": {
+                    "0": "",
+                    "1": "",
+                    "2": "",
+                    "3": "",
+                    "4": "Button.left",
+                    "5": "Button.right"
+                }
+            }
+        },
+        {
+            "name": "Gaming",
+            "device": "PS4 Controller",
+            "mappings": {
+                "buttons": {
+                    "0": "Key.alt",
+                    "1": "Key.cmd",
+                    "2": "Key.ctrl",
+                    "3": "Key.shift",
+                    "4": "Button.left",
+                    "5": "PauseInputs",
+                    "6": "Button.middle",
+                    "7": "SwapProfile",
+                    "8": "MouseScrollUp",
+                    "9": "SwapProfile",
+                    "10": "MouseScrollLeft",
+                    "11": "MouseScrollRight",
+                    "12": "MouseMove",
+                    "13": "ArrowKeysHorizontal",
+                    "14": "ArrowKeysVertical"
+                },
+                "axes": {
+                    "0": "ArrowKeysHorizontal",
+                    "1": "ArrowKeysVertical",
+                    "2": "MouseScrollHorizontal",
+                    "3": "MouseScrollVertical",
+                    "4": "Button.left",
+                    "5": "Button.right"
+                }
+            }
+        }
+    ]
+}

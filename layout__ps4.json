@@ -1,0 +1,28 @@
+{
+    "axes": {
+        "0": "Left joystick horizontal",
+        "1": "Left joystick vertical",
+        "2": "Right joystick horizontal",
+        "3": "Right joystick vertical",
+        "4": "Left trigger",
+        "5": "Right trigger"
+    },
+    "buttons": {
+        "0": "X",
+        "1": "Circle",
+        "2": "Square",
+        "3": "Triangle",
+        "4": "Capture",
+        "5": "Menu",
+        "6": "Options",
+        "7": "Left joystick button",
+        "8": "Right joystick button",
+        "9": "Left bumper",
+        "10": "Right bumper",
+        "11": "D-pad up",
+        "12": "D-pad down",
+        "13": "D-pad left",
+        "14": "D-pad right",
+        "15": "..."
+    }
+}

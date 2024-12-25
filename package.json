@@ -1,0 +1,22 @@
+{
+  "name": "controller-mapper",
+  "version": "1.0.0",
+  "description": "Controller Mapper Project",
+  "main": "index.js",
+  "scripts": {
+    "start": "python3 main.py run",
+    "test": "python -m unittest discover -s tests",
+    "list": "python3 main.py list",
+    "add": "python3 main.py add",
+    "remove": "python3 main.py remove",
+    "map": "python3 main.py map",
+    "check": "python3 main.py check",
+    "switch": "python3 main.py switch",
+    "c": "python3 main.py calibrate",
+    "listen": "python3 main.py listen",
+    "log": "python3 main.py log"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {}
+}
