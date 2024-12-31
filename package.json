@@ -1,22 +1,18 @@
 {
   "name": "controller-mapper",
   "version": "1.0.0",
-  "description": "Controller Mapper Project",
-  "main": "index.js",
+  "description": "A controller mapping tool",
+  "main": "main.py",
   "scripts": {
-    "start": "python3 main.py run",
-    "test": "python -m unittest discover -s tests",
-    "list": "python3 main.py list",
-    "add": "python3 main.py add",
-    "remove": "python3 main.py remove",
-    "map": "python3 main.py map",
-    "check": "python3 main.py check",
-    "switch": "python3 main.py switch",
-    "c": "python3 main.py calibrate",
-    "listen": "python3 main.py listen",
-    "log": "python3 main.py log"
+    "start": "python main.py run",
+    "test": "python -m unittest discover tests"
   },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {}
+  "author": "Joshua Wink",
+  "license": "MIT",
+  "dependencies": {
+    "pynput": "^1.7.3",
+    "pyautogui": "^0.9.53",
+    "pygame": "^2.1.0",
+    "pync": "^4.0.2"
+  }
 }
