@@ -422,6 +422,19 @@ def smooth_mouse_move(dx, dy):
 def execute_action(action, value, config):
     """
     Executes a specified action based on the provided action name and value.
+
+    Parameters:
+    action (str): The name of the action to execute. This can be a mouse action, 
+                  keyboard action, or a custom action defined in the action_map.
+    value (any): The value associated with the action. This can be a boolean, 
+                 float, or any other type depending on the action.
+    config (dict): The configuration dictionary containing settings and mappings.
+
+    Returns:
+    None
+    """
+    """
+    Executes a specified action based on the provided action name and value.
     Parameters:
     action (str): The name of the action to execute. This can be a mouse action, 
                   keyboard action, or a custom action defined in the action_map.
@@ -459,11 +472,39 @@ def execute_action(action, value, config):
         "ArrowKeysVertical": lambda v: handle_arrow_keys_vertical(v),
         "TestLog": lambda v: test_log(v),
         "PauseInputs": lambda v: toggle_pause_inputs() if v else None,
+        # "Macro": lambda v: execute_macro(v) if v else None,
         "": lambda v: None
     }
-    print('action', action)
+    # print('action', action)
     def test_log(v):
         print(f"Test Log: value={v}")
+
+
+    def parse_and_execute_combination(action):
+        """
+        Parse a combination action string and execute the corresponding key presses/releases.
+        The combination action string should contain key names separated by '+'.
+        Example: "Key.ctrl+Key.alt+Key.delete"
+        """
+        keys = action.split('+')
+        for key in keys:
+            if key.startswith("Key."):
+                key_name = key.split(".")[1]
+                keyboard.press(getattr(Key, key_name))
+            elif key.startswith("Button."):
+                button_name = key.split(".")[1]
+                mouse.press(getattr(Button, button_name))
+            else:
+                logging.warning(f"Unknown key/button in combination: {key}")
+
+        # Release keys/buttons after pressing them
+        for key in keys:
+            if key.startswith("Key."):
+                key_name = key.split(".")[1]
+                keyboard.release(getattr(Key, key_name))
+            elif key.startswith("Button."):
+                button_name = key.split(".")[1]
+                mouse.release(getattr(Button, button_name))
 
     def handle_arrow_keys_horizontal(v):
         if v > 0.5:
@@ -505,10 +546,13 @@ def execute_action(action, value, config):
             mouse.release(button)
     else:
         func = action_map.get(action)
-        if func:
-            func(value)
-        else:
-            logging.warning(f"No action mapped for '{action}'.")
+        print('func', func)
+        print('value', value)
+        print('action', action)
+        # if func:
+        #     func(value)
+        # else:
+        #     logging.warning(f"No action mapped for '{action}'.")
 
 def toggle_pause_inputs():
     """
@@ -520,15 +564,21 @@ def toggle_pause_inputs():
     Notifier.notify(f"Inputs {state}.", title="Input State Change")
     logging.info(f"Inputs {state}.")
 
+def get_button_action(profile, button_index):
+    return profile['mappings']['buttons'].get(str(button_index), {}).get("action")
+
+def get_axis_action(profile, axis_index):
+    return profile['mappings']['axes'].get(str(axis_index), {}).get("action")
+
 def execute_profile_actions(data, config, controller):
     """
     Executes actions based on the current profile and input data.
     This function processes input data to execute corresponding actions defined in the current profile.
     It handles button presses, button holds, button releases, and axis movements. The function also
     includes placeholders for handling combo actions.
-    Args:
-        data (dict): A dictionary containing input data with the following keys:
-            - 'held_buttons' (set): A set of buttons that are currently held down.
+        logging.debug(f'func: {func}')
+        logging.debug(f'value: {value}')
+        logging.debug(f'action: {action}')
             - 'pressed_buttons' (set): A set of buttons that were pressed.
             - 'released_buttons' (set): A set of buttons that were released.
             - 'axis_values' (dict): A dictionary mapping axis identifiers to their current values.
@@ -574,47 +624,39 @@ def execute_profile_actions(data, config, controller):
     
     if data['pressed_buttons']:
         for button in data['pressed_buttons']:
-                action = profile['mappings']['buttons'].get(str(button))
-                if action:
-                    print('action pressed', action)
-                    execute_action(action, 1, config)
-                    data['held_buttons'].add(button)
-                    data['pressed_buttons'].remove(button)
-
-    #if held we don't want to do but we want to know it's still there, fine
-    #if pressed we want to do it once
-    #if released we want to do it once
-
-    #we need to make sure that we check to see if the button is held, if it is we don't want to do anything
+            mapped_action = get_button_action(profile, button)
+            if mapped_action:
+                execute_action(mapped_action, 1, config)
+                data['held_buttons'].add(button)
+                data['pressed_buttons'].remove(button)
 
     if data['released_buttons']:
         for button in data['released_buttons']:
-            action = profile['mappings']['buttons'].get(str(button))
-            if action:
-                print('action released', action)
-                execute_action(action, 0, config)
+            mapped_action = get_button_action(profile, button)
+            if mapped_action:
+                execute_action(mapped_action, 0, config)
                 data['released_buttons'].remove(button)
-    # Execute axis actions
+
     if data['axis_values']:
         #TODO: here, idk if it actually factors in min and max properly to get a range then it can calc a % of 100% and then apply deadzone
         zero_axes = []
-        # print('skip_axes', data['skip_axes'])
+
         for axis, value in data['axis_values'].items():
-            if value == 0:
-                zero_axes.append(axis)
-            elif axis not in data['skip_axes']:
-                action = profile['mappings']['axes'].get(str(axis))
-                if action and value != 0:
-                    # print('mock execute action', action, value)
-                    execute_action(action, value, config)
-                if axis in [4, 5]:
-                    data['skip_axes'].add(axis)
-        if zero_axes:
-            for axis in zero_axes:
+            if axis in zero_axes:
                 data['axis_values'].pop(axis)
                 if axis in data['skip_axes']:
-                    execute_action(profile['mappings']['axes'].get(str(axis)), 0, config)
-                    data['skip_axes'].remove(axis)
+                    action = get_axis_action(profile, int(axis))
+                    if action:
+                        execute_action(action, 0, config)
+                        data['skip_axes'].remove(axis)
+            if axis not in data['skip_axes']:
+                mapped_action = get_axis_action(profile, int(axis))
+                if mapped_action:
+                    execute_action(mapped_action, value, config)
+                if axis in [4, 5]:
+                    data['skip_axes'].add(axis)
+                if value == 0.0:
+                    zero_axes.append(axis)
 
     #TODO: add in combos
     # Execute combo actions
@@ -704,13 +746,6 @@ def listen_for_controller_input(data, config):
     data['events'] = pg.event.get()
     if data['events']:
         handle_controller_events(data, config)
-
-def listen_for_controller_events(controller):
-    """
-    returns event list so we can do stuff with it
-    """
-    pg.event.pump()
-    return pg.event.get()
 
 def normalize_axis_value_0_to_1(value, min_val, max_val):
     if min_val == max_val:
