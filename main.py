@@ -50,7 +50,6 @@ def save_layout(layout, layout_path):
 
 def create_human_friendly_mappings(config, layout, mappings):
     
-
     current_profile_name = config.get('current_profile')
     profiles = config.get('profiles', [])
     current_profile = next((p for p in profiles if p['name'] == current_profile_name), None)
@@ -445,7 +444,6 @@ def execute_action(action, value, config):
     None
     """
 
-
     speed = config.get('calibration', {}).get('mouse_speed', 1.0)  # Get speed from config
     speed = 30
     action_map = {
@@ -501,7 +499,7 @@ def execute_action(action, value, config):
         handle_special_key(key, value)
     elif action.startswith("Button."):
         button = getattr(Button, action.split(".")[1])
-        if value:
+        if value:\
             mouse.press(button)
         else:
             mouse.release(button)
@@ -615,6 +613,7 @@ def execute_profile_actions(data, config, controller):
             for axis in zero_axes:
                 data['axis_values'].pop(axis)
                 if axis in data['skip_axes']:
+                    execute_action(profile['mappings']['axes'].get(str(axis)), 0, config)
                     data['skip_axes'].remove(axis)
 
     #TODO: add in combos
@@ -651,7 +650,6 @@ def check_controller(config, layout, mappings, controller): #TODO: this has too 
     - The function uses the `sleep` function to introduce delays between processing input events.
     """
     
-
     if controller:
         print(controller, 'controller')
 
@@ -1146,8 +1144,6 @@ def run_parser():
         create_human_friendly_mappings()
     else:
         print("Unknown command.")
-
-
 
 if __name__ == "__main__":
     run_parser()
