@@ -364,21 +364,32 @@ def handle_controller_events(data, config):
     for event in events:
         if event.type not in accepted_events:
             if event.type == pg.JOYDEVICEADDED:
-                logging.info(f"Controller <{event.guid}> connected.")
-                connected_controllers.append(event.device_index)
+                logging.info(f"Controller {event.guid} connected.")
+                connected_controllers.append(f"{len(connected_controllers)}: {event.guid}")
             elif event.type == pg.JOYDEVICEREMOVED:
-                logging.info(f"Controller {event.instance_id} disconnected.")
-                connected_controllers.remove(event.instance_id)
+                #check to see what controller no longer exists in pg.joysticks
+                controller_count = pg.joystick.get_count()
+                # for i in range(controller_count):
+                #     print('pg.joystick.Joystick(i)', pg.joystick.Joystick(i))
+                #     temp_controller_list.append(pg.joystick.Joystick(i).get_guid())
+                if len(connected_controllers) != controller_count and controller_count > 0:
+                    logging.info("A controller disconnected.")
+                    #we could then listen for inputs in listener and be able to tell what controllers are still transmitting inputs
+                elif controller_count == 0:
+                    logging.info("All controllers disconnected.")
+                    connected_controllers.clear()
             else:
                 logging.info(f"Unknown event type: {event.type}")
         else:
             #there are so many joy events lol
             if event.type == pg.JOYAXISMOTION:
                 axis = event.axis
-                value = event.value
-                value = calculate_axis_value(value, axis, config)
-                # print('axis & value & evalue', axis, value, value)
-                # print('axis_values', axis_values)
+                evalue = event.value
+                value = calculate_axis_value(evalue, axis, config)
+                # print('event: axis & value & evalue', axis, value, evalue)
+                if axis not in [4,5]:                   
+                    logging.debug("i disabled joysticks, see line 378. there was agross error going on")
+                    continue
                 # print('axis in axis_values', axis in axis_values)
                 min_val = config['calibration']['axes'][str(axis)]['min']                
                 max_val = config['calibration']['axes'][str(axis)]['max']
@@ -394,8 +405,6 @@ def handle_controller_events(data, config):
                     #update value
                     # print('before', axis_values)
                     axis_values[axis] = value
-                    # print('after', axis_values)
-                # sleep(1.5)
             elif event.type == pg.JOYBUTTONDOWN:
                 if event.button not in pressed_buttons and event.button not in held_buttons:
                     pressed_buttons.append(event.button)
@@ -475,10 +484,10 @@ def execute_action(action, value, config):
         # "Macro": lambda v: execute_macro(v) if v else None,
         "": lambda v: None
     }
-    # print('action', action)
+    print('value', value)
+    print('action', action)
     def test_log(v):
         print(f"Test Log: value={v}")
-
 
     def parse_and_execute_combination(action):
         """
@@ -540,15 +549,15 @@ def execute_action(action, value, config):
         handle_special_key(key, value)
     elif action.startswith("Button."):
         button = getattr(Button, action.split(".")[1])
-        if value:\
+        if value:
             mouse.press(button)
+            print('mouse press')
         else:
             mouse.release(button)
+            print('mouse release')
     else:
         func = action_map.get(action)
         print('func', func)
-        print('value', value)
-        print('action', action)
         # if func:
         #     func(value)
         # else:
@@ -638,25 +647,33 @@ def execute_profile_actions(data, config, controller):
                 data['released_buttons'].remove(button)
 
     if data['axis_values']:
-        #TODO: here, idk if it actually factors in min and max properly to get a range then it can calc a % of 100% and then apply deadzone
-        zero_axes = []
+        print('Debug: Axis values detected:', data['axis_values'])
+        capturedAxisValues = data['axis_values'].copy()
+        for axis, value in capturedAxisValues.items():
+            print(f'Debug: Processing axis {axis} with current value {value} and previous value {data["axis_value_previous"][axis]}')
+            
+            # If the last value is not zero and the current value is not zero, then process the actions below
+            if data['axis_value_previous'][axis] != 0.0 and value != 0.0:
+                print(f'Debug: Axis {axis} has non-zero previous and current values')
+                if data['skip_axes'][axis] != axis and value != 0.0:
+                    mapped_action = get_axis_action(profile, int(axis))
+                    if mapped_action:
+                        print(f'Debug: Executing action for axis {axis} with value {value}')
+                        execute_action(mapped_action, value, config)
+                    if axis in [4, 5]:
+                        print(f'Debug: Marking axis {axis} to be skipped')
+                        data['skip_axes'][axis] = axis
+            elif value == 0.0 and data['axis_value_previous'][axis] != 0.0:
+                action = get_axis_action(profile, int(axis))
+                if action:
+                    print(f'Debug: Executing action for axis {axis} with value 0 (release)')
+                    execute_action(action, 0, config)
+                    data['skip_axes'][axis] = None
+                    print(f'Debug: Axis {axis} reset - {data["skip_axes"]}')
+                    data['axis_values'].pop(axis)  # this is why we are using the captured value, so we can modify on the loop without having to do another loop.
+                    print(f'Debug: Axis {axis} removed - {data["axis_values"]}')
+            data['axis_value_previous'][axis] = value
 
-        for axis, value in data['axis_values'].items():
-            if axis in zero_axes:
-                data['axis_values'].pop(axis)
-                if axis in data['skip_axes']:
-                    action = get_axis_action(profile, int(axis))
-                    if action:
-                        execute_action(action, 0, config)
-                        data['skip_axes'].remove(axis)
-            if axis not in data['skip_axes']:
-                mapped_action = get_axis_action(profile, int(axis))
-                if mapped_action:
-                    execute_action(mapped_action, value, config)
-                if axis in [4, 5]:
-                    data['skip_axes'].add(axis)
-                if value == 0.0:
-                    zero_axes.append(axis)
 
     #TODO: add in combos
     # Execute combo actions
@@ -693,8 +710,6 @@ def check_controller(config, layout, mappings, controller): #TODO: this has too 
     """
     
     if controller:
-        print(controller, 'controller')
-
         logging.info(f"Initialized Controller {controller}: {controller.get_name()}")
 
         data = {
@@ -702,14 +717,15 @@ def check_controller(config, layout, mappings, controller): #TODO: this has too 
             'pressed_buttons': [],
             'released_buttons': [],
             'axis_values': {},
-            'connected_controllers': [controller.get_instance_id()],
+            'connected_controllers': [],
             'events': [],
             'profile': config.get(CURRENT_PROFILE_KEY),
-            'skip_axes': set(),
-            'held_buttons': set()
+            'skip_axes': {index: None for index in range(6)},
+            'held_buttons': set(),
+            'axis_value_previous': {index: None for index in range(6)}
         }
         first = True
-        while data['connected_controllers'] or first:
+        while True or first:
             try:
                 listen_for_controller_input(data, config)
                 if data['pressed_buttons'] or data['held_buttons']:
