@@ -45,29 +45,96 @@
             "device": "PS4 Controller",
             "mappings": {
                 "buttons": {
-                    "0": "Key.alt",
-                    "1": "Key.cmd",
-                    "2": "Key.ctrl",
-                    "3": "Key.shift",
-                    "4": "Button.left",
-                    "5": "PauseInputs",
-                    "6": "Button.middle",
-                    "7": "",
-                    "8": "",
-                    "9": "SwapProfile",
-                    "10": "",
-                    "11": "",
-                    "12": "",
-                    "13": "",
-                    "14": ""
+                    "0": {
+                        "name": "X",
+                        "action": "Key.alt"
+                    },
+                    "1": {
+                        "name": "Circle",
+                        "action": "Key.cmd"
+                    },
+                    "2": {
+                        "name": "Square",
+                        "action": "Key.ctrl"
+                    },
+                    "3": {
+                        "name": "Triangle",
+                        "action": "Key.shift"
+                    },
+                    "4": {
+                        "name": "Capture",
+                        "action": "Button.left"
+                    },
+                    "5": {
+                        "name": "Menu",
+                        "action": "PauseInputs"
+                    },
+                    "6": {
+                        "name": "Options",
+                        "action": "Button.middle"
+                    },
+                    "7": {
+                        "name": "Left joystick button",
+                        "action": ""
+                    },
+                    "8": {
+                        "name": "Right joystick button",
+                        "action": ""
+                    },
+                    "9": {
+                        "name": "Left bumper",
+                        "action": "SwapProfile"
+                    },
+                    "10": {
+                        "name": "Right bumper",
+                        "action": ""
+                    },
+                    "11": {
+                        "name": "D-pad up",
+                        "action": ""
+                    },
+                    "12": {
+                        "name": "D-pad down",
+                        "action": ""
+                    },
+                    "13": {
+                        "name": "D-pad left",
+                        "action": ""
+                    },
+                    "14": {
+                        "name": "D-pad right",
+                        "action": ""
+                    },
+                    "15": {
+                        "name": "...",
+                        "action": ""
+                    }
                 },
                 "axes": {
-                    "0": "",
-                    "1": "",
-                    "2": "",
-                    "3": "",
-                    "4": "Button.left",
-                    "5": "Button.right"
+                    "0": {
+                        "name": "Left joystick horizontal",
+                        "action": ""
+                    },
+                    "1": {
+                        "name": "Left joystick vertical",
+                        "action": ""
+                    },
+                    "2": {
+                        "name": "Right joystick horizontal",
+                        "action": ""
+                    },
+                    "3": {
+                        "name": "Right joystick vertical",
+                        "action": ""
+                    },
+                    "4": {
+                        "name": "Left trigger",
+                        "action": "Button.left"
+                    },
+                    "5": {
+                        "name": "Right trigger",
+                        "action": "Button.right"
+                    }
                 }
             }
         },
@@ -76,29 +143,96 @@
             "device": "PS4 Controller",
             "mappings": {
                 "buttons": {
-                    "0": "Key.alt",
-                    "1": "Key.cmd",
-                    "2": "Key.ctrl",
-                    "3": "Key.shift",
-                    "4": "Button.left",
-                    "5": "PauseInputs",
-                    "6": "Button.middle",
-                    "7": "SwapProfile",
-                    "8": "MouseScrollUp",
-                    "9": "SwapProfile",
-                    "10": "MouseScrollLeft",
-                    "11": "MouseScrollRight",
-                    "12": "MouseMove",
-                    "13": "ArrowKeysHorizontal",
-                    "14": "ArrowKeysVertical"
+                    "0": {
+                        "name": "X",
+                        "action": "Key.alt"
+                    },
+                    "1": {
+                        "name": "Circle",
+                        "action": "Key.cmd"
+                    },
+                    "2": {
+                        "name": "Square",
+                        "action": "Key.ctrl"
+                    },
+                    "3": {
+                        "name": "Triangle",
+                        "action": "Key.shift"
+                    },
+                    "4": {
+                        "name": "Capture",
+                        "action": "Button.left"
+                    },
+                    "5": {
+                        "name": "Menu",
+                        "action": "PauseInputs"
+                    },
+                    "6": {
+                        "name": "Options",
+                        "action": "Button.middle"
+                    },
+                    "7": {
+                        "name": "Left joystick button",
+                        "action": "SwapProfile"
+                    },
+                    "8": {
+                        "name": "Right joystick button",
+                        "action": "MouseScrollUp"
+                    },
+                    "9": {
+                        "name": "Left bumper",
+                        "action": "SwapProfile"
+                    },
+                    "10": {
+                        "name": "Right bumper",
+                        "action": "MouseScrollLeft"
+                    },
+                    "11": {
+                        "name": "D-pad up",
+                        "action": "MouseScrollRight"
+                    },
+                    "12": {
+                        "name": "D-pad down",
+                        "action": "MouseMove"
+                    },
+                    "13": {
+                        "name": "D-pad left",
+                        "action": "ArrowKeysHorizontal"
+                    },
+                    "14": {
+                        "name": "D-pad right",
+                        "action": "ArrowKeysVertical"
+                    },
+                    "15": {
+                        "name": "...",
+                        "action": ""
+                    }
                 },
                 "axes": {
-                    "0": "ArrowKeysHorizontal",
-                    "1": "ArrowKeysVertical",
-                    "2": "MouseScrollHorizontal",
-                    "3": "MouseScrollVertical",
-                    "4": "Button.left",
-                    "5": "Button.right"
+                    "0": {
+                        "name": "Left joystick horizontal",
+                        "action": "ArrowKeysHorizontal"
+                    },
+                    "1": {
+                        "name": "Left joystick vertical",
+                        "action": "ArrowKeysVertical"
+                    },
+                    "2": {
+                        "name": "Right joystick horizontal",
+                        "action": "MouseScrollHorizontal"
+                    },
+                    "3": {
+                        "name": "Right joystick vertical",
+                        "action": "MouseScrollVertical"
+                    },
+                    "4": {
+                        "name": "Left trigger",
+                        "action": "Button.left"
+                    },
+                    "5": {
+                        "name": "Right trigger",
+                        "action": "Button.right"
+                    }
                 }
             }
         }
