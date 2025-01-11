@@ -3,3 +3,6 @@ cython
 pygame
 pyautogui
 kivy
+pyaudio
+webrtcvad
+aiohttp

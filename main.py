@@ -1,6 +1,11 @@
+import sys
+import os
+
+# Add the transcriber directory to the Python path
+sys.path.append('/Users/jwink/Documents/GitHub/transcriber')
+
 import json
 import logging
-import sys
 import select
 import argparse
 import pygame as pg
@@ -9,8 +14,10 @@ from pynput.keyboard import Key, Controller as KeyboardController
 from pynput.mouse import Button, Controller as MouseController
 import pyautogui as mouse
 from pync import Notifier  # For Mac notifications
-import os
 import subprocess
+import asyncio
+from listen import collect_audio_once, initialize_audio_stream, initialize_vad
+from send_keys import send_keys, print_text
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -467,6 +474,22 @@ def execute_script_in_venv(script_name, *args):
             "error": e.stderr.strip()
         }
 
+async def listen_once_locally():
+    p, stream = initialize_audio_stream()
+    vad = initialize_vad()
+
+    print("Recording audio once...")
+    audio_bytes = await collect_audio_once(stream, vad, silence_threshold=15)
+    # Replace remote call with local processing below:
+    transcription = local_transcribe(audio_bytes)  # implement locally
+    send_keys(transcription)  # or send_keys(transcription)
+    p.terminate()
+
+def local_transcribe(audio_bytes):
+    # Insert or copy logic from client.py's send_audio_to_api() but do local processing
+    # e.g. call a local library or script to transcribe
+    return "transcribed text"
+
 def execute_action(action, value, config):
     """
     Executes a specified action based on the provided action name and value.
@@ -521,9 +544,10 @@ def execute_action(action, value, config):
         "TestLog": lambda v: test_log(v),
         "PauseInputs": lambda v: toggle_pause_inputs() if v else None,
         "ExecuteScript": lambda v: execute_script_in_venv("client.py", "--once", "--st", "80") if v else None,
-        # "Macro": lambda v: execute_macro(v) if v else None,
+        "ListenOnceLocally": lambda v: listen_once_locally() if v else None,
         "": lambda v: None
     }
+        # "Macro": lambda v: execute_macro(v) if v else None,
     print('value', value)
     print('action', action)
     def test_log(v):
