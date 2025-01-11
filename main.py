@@ -9,6 +9,8 @@ from pynput.keyboard import Key, Controller as KeyboardController
 from pynput.mouse import Button, Controller as MouseController
 import pyautogui as mouse
 from pync import Notifier  # For Mac notifications
+import os
+import subprocess
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -428,6 +430,43 @@ def smooth_mouse_move(dx, dy):
     avg_dy = sum(m[1] for m in mouse_movements) / len(mouse_movements)
     mouse.move(avg_dx, avg_dy)
 
+def execute_script_in_venv(script_name, *args):
+    print(f"Executing script: {script_name} with args: {args}")
+    tscribe_path = os.getenv("tscribe")
+    print(f"tscribe_path: {tscribe_path}")
+    if not tscribe_path:
+        print("TSCRIBE environment variable is not set.")
+        return {"status": "error", "message": "TSCRIBE environment variable is not set."}
+    
+    cd_command = f"cd {tscribe_path}"
+    venv_activate = f"source {os.path.join('venv', 'bin', 'activate')}"
+    script_path = os.path.join(tscribe_path, script_name)
+    print(f"script_path: {script_path}")
+    
+    try:
+        # Combine commands into one shell run
+        args_str = " ".join(args)
+        full_command = f"{cd_command} && {venv_activate} && chmod +x {script_path} && python3.12 {script_path} {args_str}"
+        print(f"Executing command: {full_command}")
+        result = subprocess.run(full_command, shell=True, capture_output=True, text=True, check=True)
+        
+        print(f"Command output: {result.stdout.strip()}")
+        print(f"Command error: {result.stderr.strip()}")
+        return {
+            "status": "success",
+            "output": result.stdout.strip(),
+            "error": result.stderr.strip()
+        }
+    except subprocess.CalledProcessError as e:
+        print(f"Script execution failed: {e}")
+        print(f"Error output: {e.stderr.strip()}")
+        return {
+            "status": "error",
+            "message": f"Script execution failed: {e}",
+            "output": e.stdout.strip(),
+            "error": e.stderr.strip()
+        }
+
 def execute_action(action, value, config):
     """
     Executes a specified action based on the provided action name and value.
@@ -481,6 +520,7 @@ def execute_action(action, value, config):
         "ArrowKeysVertical": lambda v: handle_arrow_keys_vertical(v),
         "TestLog": lambda v: test_log(v),
         "PauseInputs": lambda v: toggle_pause_inputs() if v else None,
+        "ExecuteScript": lambda v: execute_script_in_venv("client.py", "--once", "--st", "80") if v else None,
         # "Macro": lambda v: execute_macro(v) if v else None,
         "": lambda v: None
     }
@@ -557,11 +597,12 @@ def execute_action(action, value, config):
             print('mouse release')
     else:
         func = action_map.get(action)
-        print('func', func)
-        # if func:
-        #     func(value)
-        # else:
-        #     logging.warning(f"No action mapped for '{action}'.")
+        # print('func', func)
+        if func:
+            # print('func', func, value)
+            func(value)
+        else:
+            logging.warning(f"No action mapped for '{action}'.")
 
 def toggle_pause_inputs():
     """

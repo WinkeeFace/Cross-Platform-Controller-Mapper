@@ -67,7 +67,7 @@
                     },
                     "5": {
                         "name": "Menu",
-                        "action": "PauseInputs"
+                        "action": "ExecuteScript"
                     },
                     "6": {
                         "name": "Options",
@@ -75,7 +75,7 @@
                     },
                     "7": {
                         "name": "Left joystick button",
-                        "action": ""
+                        "action": "Key.esc"
                     },
                     "8": {
                         "name": "Right joystick button",
@@ -87,23 +87,23 @@
                     },
                     "10": {
                         "name": "Right bumper",
-                        "action": ""
+                        "action": "Key.enter"
                     },
                     "11": {
                         "name": "D-pad up",
-                        "action": ""
+                        "action": "Key.up"
                     },
                     "12": {
                         "name": "D-pad down",
-                        "action": ""
+                        "action": "Key.down"
                     },
                     "13": {
                         "name": "D-pad left",
-                        "action": ""
+                        "action": "Key.left"
                     },
                     "14": {
                         "name": "D-pad right",
-                        "action": ""
+                        "action": "Key.right"
                     },
                     "15": {
                         "name": "...",
@@ -165,7 +165,7 @@
                     },
                     "5": {
                         "name": "Menu",
-                        "action": "PauseInputs"
+                        "action": "ExecuteScript"
                     },
                     "6": {
                         "name": "Options",
