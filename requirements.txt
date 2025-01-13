@@ -6,3 +6,4 @@ kivy
 pyaudio
 webrtcvad
 aiohttp
+aiofiles

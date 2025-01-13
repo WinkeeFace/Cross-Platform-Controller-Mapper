@@ -96,23 +96,54 @@ def swap_to_next_profile():
         logging.error("Failed to load configuration.")
         return
 
+    print(CURRENT_PROFILE_KEY)
     profiles = config.get('profiles', [])
     current_profile = config.get(CURRENT_PROFILE_KEY)
     if not current_profile:
-        logging.error("No current profile set.")
+        logging.error("I can't read it anymore what the heck of stageNo current profile set.")
         return
 
     try:
         current_index = next(i for i, p in enumerate(profiles) if p['name'] == current_profile)
         next_index = (current_index + 1) % len(profiles)
         config[CURRENT_PROFILE_KEY] = profiles[next_index]['name']
+        print('profiles[next_index][name]', profiles[next_index]['name'])
+        print(f"config[] {config[CURRENT_PROFILE_KEY]}")
+        print(f"CURRENT_PROFILE_KEY", CURRENT_PROFILE_KEY)
         if save_config(config, CONFIG_PATH):
             Notifier.notify(f"Switched to profile: {profiles[next_index]['name']}", title="Profile Switch")
             logging.info(f"Switched to profile: {profiles[next_index]['name']}")
+            
+            # Get button and axis actions for the new profile
+            new_profile = profiles[next_index]
+            button_actions = new_profile.get('mappings', {}).get('buttons', {})
+            axis_actions = new_profile.get('mappings', {}).get('axes', {})
+            
+            # Apply the new mappings
+            apply_new_mappings(button_actions, axis_actions)
         else:
             logging.error("Failed to save profile change.")
     except StopIteration:
         logging.error("Current profile not found.")
+
+def apply_new_mappings(button_actions, axis_actions):
+    """
+    Apply new button and axis mappings.
+    """
+    logging.info("New mappings applied.")
+    def set_button_action(profile, button_index, action):
+        if 'mappings' not in profile:
+            profile['mappings'] = {}
+        if 'buttons' not in profile['mappings']:
+            profile['mappings']['buttons'] = {}
+        profile['mappings']['buttons'][str(button_index)] = {"action": action}
+
+    def set_axis_action(profile, axis_index, action):
+        if 'mappings' not in profile:
+            profile['mappings'] = {}
+        if 'axes' not in profile['mappings']:
+            profile['mappings']['axes'] = {}
+        profile['mappings']['axes'][str(axis_index)] = {"action": action}
 
 def normalize_joystick_value(value, min_val, max_val):
     if min_val == max_val:

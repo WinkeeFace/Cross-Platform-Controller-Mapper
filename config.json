@@ -1,5 +1,5 @@
 {
-    "current_profile": "Gaming",
+    "current_profile": "Default",
     "calibration": {
         "deadzone": {
             "0": 0.3,
@@ -232,6 +232,96 @@
                     "5": {
                         "name": "Right trigger",
                         "action": "Button.right"
+                    }
+                }
+            }
+        },
+        {
+            "name": "UI Interactions",
+            "device": "PS4 Controller",
+            "mappings": {
+                "buttons": {
+                    "0": {
+                        "name": "X",
+                        "action": "Cmd+Shift+P"
+                    },
+                    "1": {
+                        "name": "Circle",
+                        "action": "Cmd+W"
+                    },
+                    "2": {
+                        "name": "Square",
+                        "action": "Esc"
+                    },
+                    "3": {
+                        "name": "Triangle",
+                        "action": "Cmd+B"
+                    },
+                    "4": {
+                        "name": "LB",
+                        "action": "ToggleSubProfile"
+                    },
+                    "5": {
+                        "name": "RB",
+                        "action": "Modifier"
+                    },
+                    "6": {
+                        "name": "LT",
+                        "action": "MouseClickLeft"
+                    },
+                    "7": {
+                        "name": "RT",
+                        "action": "MouseClickRight"
+                    },
+                    "8": {
+                        "name": "Left Joystick Button",
+                        "action": ""
+                    },
+                    "9": {
+                        "name": "Right Joystick Button",
+                        "action": ""
+                    },
+                    "10": {
+                        "name": "D-pad Up",
+                        "action": "Ctrl+Cmd+F"
+                    },
+                    "11": {
+                        "name": "D-pad Down",
+                        "action": "Ctrl+Cmd+E"
+                    },
+                    "12": {
+                        "name": "D-pad Left",
+                        "action": "Ctrl+Shift+Tab"
+                    },
+                    "13": {
+                        "name": "D-pad Right",
+                        "action": "Ctrl+Tab"
+                    },
+                    "14": {
+                        "name": "Capture",
+                        "action": ""
+                    },
+                    "15": {
+                        "name": "Menu",
+                        "action": ""
+                    }
+                },
+                "axes": {
+                    "0": {
+                        "name": "Left Joystick Horizontal",
+                        "action": "ScrollHorizontal"
+                    },
+                    "1": {
+                        "name": "Left Joystick Vertical",
+                        "action": "ScrollVertical"
+                    },
+                    "2": {
+                        "name": "Right Joystick Horizontal",
+                        "action": "MouseMoveHorizontal"
+                    },
+                    "3": {
+                        "name": "Right Joystick Vertical",
+                        "action": "MouseMoveVertical"
                     }
                 }
             }
