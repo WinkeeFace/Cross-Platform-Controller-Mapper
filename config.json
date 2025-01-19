@@ -1,5 +1,8 @@
 {
     "current_profile": "Default",
+    "current_profile_index": 2,
+    "current_sub_profile": "Default",
+    "current_sub_profile_index": 0,
     "calibration": {
         "deadzone": {
             "0": 0.3,
@@ -243,19 +246,19 @@
                 "buttons": {
                     "0": {
                         "name": "X",
-                        "action": "Cmd+Shift+P"
+                        "action": "cmd+shift+p"
                     },
                     "1": {
                         "name": "Circle",
-                        "action": "Cmd+W"
+                        "action": "cmd+w"
                     },
                     "2": {
                         "name": "Square",
-                        "action": "Esc"
+                        "action": "esc"
                     },
                     "3": {
                         "name": "Triangle",
-                        "action": "Cmd+B"
+                        "action": "cmd+b"
                     },
                     "4": {
                         "name": "LB",
@@ -278,24 +281,24 @@
                         "action": ""
                     },
                     "9": {
-                        "name": "Right Joystick Button",
-                        "action": ""
+                        "name": "Left bumper",
+                        "action": "SwapProfile"
                     },
                     "10": {
                         "name": "D-pad Up",
-                        "action": "Ctrl+Cmd+F"
+                        "action": "ctrl+cmd+f"
                     },
                     "11": {
                         "name": "D-pad Down",
-                        "action": "Ctrl+Cmd+E"
+                        "action": "ctrl+cmd+e"
                     },
                     "12": {
                         "name": "D-pad Left",
-                        "action": "Ctrl+Shift+Tab"
+                        "action": "ctrl+shift+tab"
                     },
                     "13": {
                         "name": "D-pad Right",
-                        "action": "Ctrl+Tab"
+                        "action": "ctrl+tab"
                     },
                     "14": {
                         "name": "Capture",

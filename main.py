@@ -23,9 +23,11 @@ from send_keys import send_keys, print_text
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 CONFIG_PATH = 'config.json'
-CURRENT_PROFILE_KEY = 'current_profile'
+CURRENT_PROFILE_INDEX = 0
 LAYOUT_PATH = 'layout__ps4.json'
 MAPPINGS_PATH = 'mappings.json'
+
+#memory
 
 # Initialize controllers
 keyboard = KeyboardController()
@@ -36,7 +38,10 @@ is_inputs_paused = False
 def load_json(file_path) -> dict | bool:
     try:
         with open(file_path, 'r') as file:
-            return json.load(file)
+            contents = json.load(file)
+            print(f"Loaded {file_path}")
+            print(contents)
+            return contents
     except Exception as e:
         logging.error(f"Failed to load {file_path}: {e}")
         return False
@@ -59,8 +64,8 @@ def save_layout(layout, layout_path):
 
 def create_human_friendly_mappings(config, layout, mappings):
     
-    current_profile_name = config.get('current_profile')
-    profiles = config.get('profiles', [])
+    current_profile_name = config['current_profile']
+    profiles = config['profiles']
     current_profile = next((p for p in profiles if p['name'] == current_profile_name), None)
 
     if not current_profile:
@@ -95,48 +100,76 @@ def swap_to_next_profile():
     if not config:
         logging.error("Failed to load configuration.")
         return
+    
+    global CURRENT_PROFILE_INDEX
+    print(CURRENT_PROFILE_INDEX)
 
-    print(CURRENT_PROFILE_KEY)
-    profiles = config.get('profiles', [])
-    current_profile = config.get(CURRENT_PROFILE_KEY)
+
+    profiles = config['profiles']
+    print('profiles', profiles)
+    current_profile_index = config['current_profile_index']
+    print('current_profile_index', current_profile_index)
+    current_profile = config['current_profile']
+    print('current_profile', current_profile)
     if not current_profile:
-        logging.error("I can't read it anymore what the heck of stageNo current profile set.")
+        logging.error("No current profile set.")
         return
 
     try:
-        current_index = next(i for i, p in enumerate(profiles) if p['name'] == current_profile)
+        current_index = CURRENT_PROFILE_INDEX
         next_index = (current_index + 1) % len(profiles)
-        config[CURRENT_PROFILE_KEY] = profiles[next_index]['name']
-        print('profiles[next_index][name]', profiles[next_index]['name'])
-        print(f"config[] {config[CURRENT_PROFILE_KEY]}")
-        print(f"CURRENT_PROFILE_KEY", CURRENT_PROFILE_KEY)
+        config['current_profile_index'] = next_index
+        config[current_profile] = profiles[next_index]['name']
+        CURRENT_PROFILE_INDEX = next_index
+
+        # print('profiles[next_index][name]', profiles[CURRENT_PROFILE_INDEX]['name'])
+        # print(f"config[] {config['profiles'][CURRENT_PROFILE_INDEX]}")
+        # print(f"CURRENT_PROFILE_KEY", CURRENT_PROFILE_INDEX)
         if save_config(config, CONFIG_PATH):
-            Notifier.notify(f"Switched to profile: {profiles[next_index]['name']}", title="Profile Switch")
-            logging.info(f"Switched to profile: {profiles[next_index]['name']}")
+            Notifier.notify(f"Switched to profile: {profiles[CURRENT_PROFILE_INDEX]['name']}", title="Profile Switch")
+            logging.info(f"Switched to profile: {profiles[CURRENT_PROFILE_INDEX]['name']}")
             
             # Get button and axis actions for the new profile
             new_profile = profiles[next_index]
-            button_actions = new_profile.get('mappings', {}).get('buttons', {})
-            axis_actions = new_profile.get('mappings', {}).get('axes', {})
+            # button_actions = new_profile.get('mappings', {}).get('buttons', {})
+            # axis_actions = new_profile.get('mappings', {}).get('axes', {})
             
             # Apply the new mappings
-            apply_new_mappings(button_actions, axis_actions)
+            # apply_new_mappings(config, button_actions, axis_actions)
         else:
             logging.error("Failed to save profile change.")
     except StopIteration:
         logging.error("Current profile not found.")
 
-def apply_new_mappings(button_actions, axis_actions):
+def apply_new_mappings(config, button_actions, axis_actions):
     """
     Apply new button and axis mappings.
     """
+    logging.info(f'data: {button_actions} {axis_actions})')
     logging.info("New mappings applied.")
+    # Update the current profile with the new mappings
+    
+
+    def set_profile_mappings(profile, button_actions, axis_actions):
+        logging.info(f"Setting profile mappings for profile: {profile['name']}")
+        for button_index, action in button_actions.items():
+            action_name = action.get('name', f"Button {button_index}")
+            action_value = action.get('action', 'No action')
+            logging.info(f"Setting button action: {action_name} -> {action_value}")
+            set_button_action(profile, button_index, action_value)
+        for axis_index, action in axis_actions.items():
+            action_name = action.get('name', f"Axis {axis_index}")
+            action_value = action.get('action', 'No action')
+            logging.info(f"Setting axis action: {action_name} -> {action_value}")
+            set_axis_action(profile, axis_index, action_value)
+
     def set_button_action(profile, button_index, action):
         if 'mappings' not in profile:
             profile['mappings'] = {}
         if 'buttons' not in profile['mappings']:
             profile['mappings']['buttons'] = {}
         profile['mappings']['buttons'][str(button_index)] = {"action": action}
+        logging.info(f"Button action set: {button_index} -> {action}")
 
     def set_axis_action(profile, axis_index, action):
         if 'mappings' not in profile:
@@ -144,6 +177,9 @@ def apply_new_mappings(button_actions, axis_actions):
         if 'axes' not in profile['mappings']:
             profile['mappings']['axes'] = {}
         profile['mappings']['axes'][str(axis_index)] = {"action": action}
+        logging.info(f"Axis action set: {axis_index} -> {action}")
+
+    set_profile_mappings(config['profiles'][CURRENT_PROFILE_INDEX], button_actions, axis_actions)
 
 def normalize_joystick_value(value, min_val, max_val):
     if min_val == max_val:
@@ -590,74 +626,97 @@ def execute_action(action, value, config):
         The combination action string should contain key names separated by '+'.
         Example: "Key.ctrl+Key.alt+Key.delete"
         """
+        
         keys = action.split('+')
         for key in keys:
+            key = key.strip()
             if key.startswith("Key."):
                 key_name = key.split(".")[1]
                 keyboard.press(getattr(Key, key_name))
             elif key.startswith("Button."):
                 button_name = key.split(".")[1]
                 mouse.press(getattr(Button, button_name))
+            elif len(key) == 1:
+                keyboard.press(key.lower())
             else:
-                logging.warning(f"Unknown key/button in combination: {key}")
+                try:
+                    keyboard.press(getattr(Key, key))
+                except AttributeError:
+                    logging.warning(f"Unknown key/button in combination: {key}")
 
         # Release keys/buttons after pressing them
-        for key in keys:
+        for key in reversed(keys):
+            key = key.strip()
             if key.startswith("Key."):
                 key_name = key.split(".")[1]
                 keyboard.release(getattr(Key, key_name))
             elif key.startswith("Button."):
                 button_name = key.split(".")[1]
                 mouse.release(getattr(Button, button_name))
+            elif len(key) == 1:
+                keyboard.release(key.lower())
+            else:
+                try:
+                    keyboard.release(getattr(Key, key))
+                except AttributeError:
+                    logging.warning(f"Unknown key/button in combination: {key}")
 
-    def handle_arrow_keys_horizontal(v):
-        if v > 0.5:
-            keyboard.press(Key.right)
-            keyboard.release(Key.left)
-        elif v < -0.5:
-            keyboard.press(Key.left)
-            keyboard.release(Key.right)
-        else:
-            keyboard.release(Key.left)
-            keyboard.release(Key.right)
 
-    def handle_arrow_keys_vertical(v):
-        if v > 0.5:
-            keyboard.press(Key.down)
-            keyboard.release(Key.up)
-        elif v < -0.5:
-            keyboard.press(Key.up)
-            keyboard.release(Key.down)
-        else:
-            keyboard.release(Key.up)
-            keyboard.release(Key.down)
+        def handle_arrow_keys_horizontal(v):
+            if v > 0.5:
+                keyboard.press(Key.right)
+                keyboard.release(Key.left)
+            elif v < -0.5:
+                keyboard.press(Key.left)
+                keyboard.release(Key.right)
+            else:
+                keyboard.release(Key.left)
+                keyboard.release(Key.right)
 
-    def handle_special_key(pynput_key, v):
-        if v:
-            keyboard.press(pynput_key)
-        else:
-            keyboard.release(pynput_key)
+        def handle_arrow_keys_vertical(v):
+            if v > 0.5:
+                keyboard.press(Key.down)
+                keyboard.release(Key.up)
+            elif v < -0.5:
+                keyboard.press(Key.up)
+                keyboard.release(Key.down)
+            else:
+                keyboard.release(Key.up)
+                keyboard.release(Key.down)
 
-    # Check if the action is a Key or Button
-    if action.startswith("Key."):
-        key = getattr(Key, action.split(".")[1])
-        handle_special_key(key, value)
-    elif action.startswith("Button."):
-        button = getattr(Button, action.split(".")[1])
-        if value:
-            mouse.press(button)
-            print('mouse press')
+        def handle_special_key(pynput_key, v):
+            if v:
+                keyboard.press(pynput_key)
+            else:
+                keyboard.release(pynput_key)
+
+        # Check if the action is a Key or Button
+        if action.startswith("Key."):
+            key = getattr(Key, action.split(".")[1])
+            handle_special_key(key, value)
+        elif action.startswith("Button."):
+            button = getattr(Button, action.split(".")[1])
+            if value:
+                mouse.press(button)
+                print('mouse press')
+            else:
+                mouse.release(button)
+                print('mouse release')
         else:
-            mouse.release(button)
-            print('mouse release')
-    else:
-        func = action_map.get(action)
-        # print('func', func)
-        if func:
-            # print('func', func, value)
-            func(value)
-        else:
-            logging.warning(f"No action mapped for '{action}'.")
+            if '+' in action:
+                try:
+                    parse_and_execute_combination(action)
+                except Exception as e:
+                    logging.error(f"Error executing combination action '{action}': {e}")
+                return
+            else:
+                func = action_map.get(action)
+            # print('func', func)
+                if func:
+                    # print('func', func, value)
+                    func(value)
+                else:
+                    logging.warning(f"No action mapped for '{action}'.")
 
 def toggle_pause_inputs():
     """
@@ -695,15 +754,10 @@ def execute_profile_actions(data, config, controller):
     if not config:
         logging.error("Failed to load configuration.")
         return
-
-    current_profile = config.get(CURRENT_PROFILE_KEY)
-    if not current_profile:
-        logging.error("No current profile set.")
-        return
-
-    profile = next((p for p in config['profiles'] if p['name'] == current_profile), None)
+    global CURRENT_PROFILE_INDEX
+    profile = config['profiles'][CURRENT_PROFILE_INDEX]
     if not profile:
-        logging.error(f"Profile '{current_profile}' not found.")
+        logging.error("No current profile set.")
         return
 
     if not controller:
@@ -743,6 +797,7 @@ def execute_profile_actions(data, config, controller):
                 data['released_buttons'].remove(button)
 
     if data['axis_values']:
+        print
         print('Debug: Axis values detected:', data['axis_values'])
         capturedAxisValues = data['axis_values'].copy()
         for axis, value in capturedAxisValues.items():
@@ -768,6 +823,9 @@ def execute_profile_actions(data, config, controller):
                     print(f'Debug: Axis {axis} reset - {data["skip_axes"]}')
                     data['axis_values'].pop(axis)  # this is why we are using the captured value, so we can modify on the loop without having to do another loop.
                     print(f'Debug: Axis {axis} removed - {data["axis_values"]}')
+            elif value == 0.0 and data['axis_value_previous'][axis] == 0.0:
+                data['axis_value_previous'][axis] = None
+                return
             data['axis_value_previous'][axis] = value
 
 
@@ -782,7 +840,7 @@ def execute_profile_actions(data, config, controller):
     #             action = combo['action']
     #             execute_action(action, 0)
 
-def check_controller(config, layout, mappings, controller): #TODO: this has too much responsiblility I feel 
+def check_controller(config, layout, mappings, controller): #TODO: this has too much responsibility I feel 
     """
     Initializes the Pygame library and checks for connected controllers. If controllers are detected,
     it initializes each controller and listens for input events. The function processes controller
@@ -807,7 +865,7 @@ def check_controller(config, layout, mappings, controller): #TODO: this has too 
     
     if controller:
         logging.info(f"Initialized Controller {controller}: {controller.get_name()}")
-
+        global CURRENT_PROFILE_INDEX
         data = {
             'accepted_events': [pg.JOYAXISMOTION, pg.JOYBUTTONDOWN, pg.JOYBUTTONUP, pg.JOYHATMOTION],
             'pressed_buttons': [],
@@ -815,7 +873,7 @@ def check_controller(config, layout, mappings, controller): #TODO: this has too 
             'axis_values': {},
             'connected_controllers': [],
             'events': [],
-            'profile': config.get(CURRENT_PROFILE_KEY),
+            'profile': config.get('current_profile_index'),
             'skip_axes': {index: None for index in range(6)},
             'held_buttons': set(),
             'axis_value_previous': {index: None for index in range(6)}
@@ -886,7 +944,8 @@ def list_mappings():
     if not config:
         print("Failed to load configuration.")
         return
-    current_profile = config.get(CURRENT_PROFILE_KEY)
+    global CURRENT_PROFILE_INDEX
+    current_profile = config.get('current_profile_index')
     if not current_profile:
         print("No current profile set.")
         return
@@ -909,8 +968,8 @@ def add_mapping(buttons=None, axes=None, action=None):
     if not config:
         print("Failed to load configuration.")
         return
-
-    current_profile = config.get(CURRENT_PROFILE_KEY)
+    global CURRENT_PROFILE_INDEX
+    current_profile = config.get('current_profile_index')
     if not current_profile:
         print("No current profile set.")
         return
@@ -954,8 +1013,8 @@ def remove_mapping(buttons=None, axes=None):
     if not config:
         print("Failed to load configuration.")
         return
-
-    current_profile = config.get(CURRENT_PROFILE_KEY)
+    global CURRENT_PROFILE_INDEX
+    current_profile = config.get('current_profile_index')
     if not current_profile:
         print("No current profile set.")
         return
@@ -1009,18 +1068,20 @@ def map_buttons_to_action():
     if not config:
         print("Failed to load configuration.")
         return
-
-    current_profile = config.get(CURRENT_PROFILE_KEY)
-    if not current_profile:
+    global CURRENT_PROFILE_INDEX
+    current_profile_index = config.get('current_profile_index')
+    if not current_profile_index:
         print("No current profile set.")
         return
 
-    profile = next((p for p in config['profiles'] if p['name'] == current_profile), None)
-    if not profile:
-        print(f"Profile '{current_profile}' not found.")
-        return
+    profile = config['profiles'][current_profile_index]
+    print(f"Current Profile: {profile['name']}")
+    # profile_name = profile.get('name')
+    # if not profile_name:
+    #     print(f"Profile '{profile_name}' not found.")
+    #     return
 
-    print(f"\nMapping Buttons and Axes for Profile: '{current_profile}'\n")
+    print(f"\nMapping Buttons and Axes for Profile: '{profile}'\n")
 
     pg.init()
     pg.joystick.init()
@@ -1223,6 +1284,10 @@ def preload():
     config = load_json(CONFIG_PATH)
     layout = load_json(LAYOUT_PATH)
     mappings = load_json(MAPPINGS_PATH)
+    global CURRENT_PROFILE_INDEX
+    CURRENT_PROFILE_INDEX = config['current_profile_index']
+    print('CURRENT_PROFILE_INDEX', CURRENT_PROFILE_INDEX)
+    print('config', config)   
 
     pg_controller = initialize_pygame()
     if isinstance(pg_controller, list) and pg_controller:

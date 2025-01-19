@@ -1,0 +1,16 @@
+# Ignore Mac system files
+.DS_Store
+
+# Ignore Python bytecode files
+*.pyc
+__pycache__/
+
+# Ignore virtual environment directories
+# venv/
+# env/
+
+# Ignore log files
+*.log
+
+# Ignore node_modules directory
+node_modules/
